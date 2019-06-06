@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/huoshan017/ib_server/src/account/account_db"
 	"github.com/huoshan017/mysql-go/proxy/client"
-	"github.com/huoshan017/ponu/ib_game/servers/account/account_db"
 )
 
 type DBProxy struct {

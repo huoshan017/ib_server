@@ -1,3 +1,3 @@
 cd ../bin
-account.exe -c ../conf/account.json
+start account.exe -c ../conf/account.json
 cd ../bat

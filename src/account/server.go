@@ -50,9 +50,9 @@ func (this *Server) Init(config *Config) bool {
 	this.config = config
 
 	log.Printf("Loading accounts from db ...\n")
-	accounts := this.db_proxy.GetTableManager().Get_T_Account_Table_Proxy().SelectAllPrimaryField()
+	accounts := this.db_proxy.GetTableManager().Get_T_Account_Table_Proxy().SelectAllPrimaryFieldMap()
 	account_mgr.Init()
-	for _, a := range accounts {
+	for a, _ := range accounts {
 		account_mgr.Add(&Account{
 			account: a,
 		})

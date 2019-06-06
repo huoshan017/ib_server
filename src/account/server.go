@@ -50,14 +50,19 @@ func (this *Server) Init(config *Config) bool {
 	this.config = config
 
 	log.Printf("Loading accounts from db ...\n")
-	accounts := this.db_proxy.GetTableManager().Get_T_Account_Table_Proxy().SelectAllPrimaryFieldMap()
+	accounts, o := this.db_proxy.GetTableManager().Get_T_Account_Table_Proxy().SelectAllRecordsMap()
+	if !o {
+		log.Printf("Select all records failed\n")
+		return false
+	}
+	log.Printf("Loaded accounts: %v\n", accounts)
 	account_mgr.Init()
-	for a, _ := range accounts {
+	for a, s := range accounts {
 		account_mgr.Add(&Account{
 			account: a,
 		})
+		log.Printf("		account: %v, account_struct: %v\n", a, *s)
 	}
-	log.Printf("Loaded accounts: %v\n", accounts)
 
 	return true
 }

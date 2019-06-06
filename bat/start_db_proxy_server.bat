@@ -1,3 +1,3 @@
 cd ../tools
-start db_proxy_server.exe -c ../conf/db_proxy_server.json
+db_proxy_server.exe -c ../conf/db_proxy_server.json
 cd ../test

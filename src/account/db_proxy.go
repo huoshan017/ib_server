@@ -7,7 +7,7 @@ import (
 
 type DBProxy struct {
 	db           mysql_proxy.DB
-	table_proxys account_db.TableProxysManager
+	table_proxys account_db.TablesProxyManager
 }
 
 func (this *DBProxy) Connect(proxy_addr string, db_host_id int32, db_host_alias, db_name string) bool {
@@ -30,6 +30,6 @@ func (this *DBProxy) End() {
 	this.db.Close()
 }
 
-func (this *DBProxy) GetTableManager() *account_db.TableProxysManager {
+func (this *DBProxy) GetTableManager() *account_db.TablesProxyManager {
 	return &this.table_proxys
 }

@@ -41,6 +41,13 @@ func (this *AccountMgr) Remove(account string) bool {
 	return true
 }
 
+func (this *AccountMgr) Has(account string) bool {
+	this.locker.RLock()
+	defer this.locker.RUnlock()
+	_, o := this.accounts[account]
+	return o
+}
+
 func (this *AccountMgr) Verify(account string, password string) bool {
 	return true
 }

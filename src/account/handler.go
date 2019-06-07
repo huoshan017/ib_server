@@ -8,6 +8,10 @@ import (
 	"runtime/debug"
 )
 
+type struct VerifyResult struct {
+	
+}
+
 func verify_handler(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -15,10 +19,9 @@ func verify_handler(w http.ResponseWriter, r *http.Request) {
 			log.Printf("%v\n", reflect.TypeOf(err))
 		}
 	}()
-
 	defer r.Body.Close()
 
-	data, err := ioutil.ReadAll(r.Body)
+	/*data, err := ioutil.ReadAll(r.Body)
 	if nil != err {
 		//_send_error(w, 0, -1)
 		log.Printf("verify handler ReadAll err %v\n", err.Error())
@@ -27,6 +30,14 @@ func verify_handler(w http.ResponseWriter, r *http.Request) {
 
 	data, err = _verify(data)
 	if err != nil {
+
+	}*/
+
+	querys := r.URL.Query()
+	account := querys.Get("account")
+	password := querys.Get("password")
+
+	if !account_mgr.Has(account) {
 
 	}
 
@@ -37,6 +48,7 @@ func verify_handler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("verify handler Write err %v, ret %v\n", err.Error(), ret)
 		return
 	}
+	w.WriteHeader(200)
 }
 
 func _verify(data []byte) (ret_data []byte, err error) {

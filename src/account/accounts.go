@@ -15,6 +15,7 @@ var (
 )
 
 type AccountMgr struct {
+	account_table *account_db.T_Account_Table_Proxy
 	accounts_have map[string]bool
 	accounts_load *simplelru.LRU
 	locker        sync.RWMutex
@@ -22,14 +23,15 @@ type AccountMgr struct {
 
 var account_mgr AccountMgr
 
-func (this *AccountMgr) Init() error {
+func (this *AccountMgr) Init(account_table *account_db.T_Account_Table_Proxy) error {
 	accounts, err := simplelru.NewLRU(DEFAULT_ACCOUNT_NUM_LOAD, nil)
 	if err != nil {
 		return err
 	}
 	this.accounts_load = accounts
+	this.account_table = account_table
 	log.Printf("Loading accounts from db ...\n")
-	accounts_have := server.db_proxy.GetTableManager().Get_T_Account_Table_Proxy().SelectAllPrimaryFieldMap()
+	accounts_have := this.account_table.SelectAllPrimaryFieldMap()
 	log.Printf("Loaded accounts: %v\n", accounts_have)
 
 	if accounts_have == nil {
@@ -43,17 +45,18 @@ func (this *AccountMgr) Add(acc, pwd string) bool {
 	this.locker.Lock()
 	defer this.locker.Unlock()
 
-	_, o := this.accounts_have[acc]
-	if o {
+	if _, o := this.accounts_have[acc]; o {
 		return false
 	}
 
 	if !this.accounts_load.Contains(acc) {
 		account := account_db.Create_T_Account()
+		account.Lock()
 		account.Set_account(acc)
 		account.Set_password(pwd)
 		account.Set_register_time(int32(time.Now().Unix()))
-		server.db_proxy.GetTableManager().Get_T_Account_Table_Proxy().Insert(account)
+		account.Unlock()
+		this.account_table.Insert(account)
 		this.accounts_load.Add(acc, account)
 		this.accounts_have[acc] = true
 	}
@@ -91,7 +94,7 @@ func (this *AccountMgr) Get(acc string, is_load bool) *account_db.T_Account {
 	}
 
 	if is_load {
-		account = server.db_proxy.GetTableManager().Get_T_Account_Table_Proxy().SelectByPrimaryField(acc)
+		account = this.account_table.SelectByPrimaryField(acc)
 		if account == nil {
 			return nil
 		}

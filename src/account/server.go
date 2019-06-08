@@ -49,14 +49,6 @@ func (this *Server) Init(config *Config) bool {
 	this.http_service.HandleFunc("/account_register", register_handler)
 	this.config = config
 
-	log.Printf("Loading accounts from db ...\n")
-	accounts, o := this.db_proxy.GetTableManager().Get_T_Account_Table_Proxy().SelectAllRecordsMap()
-	if !o {
-		log.Printf("Select all records failed\n")
-		return false
-	}
-	log.Printf("Loaded accounts: %v\n", accounts)
-
 	err := account_mgr.Init()
 	if err != nil {
 		log.Printf("AccountMgr init err %v\n", err.Error())

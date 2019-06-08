@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"sync"
 	"time"
 
@@ -27,7 +28,14 @@ func (this *AccountMgr) Init() error {
 		return err
 	}
 	this.accounts_load = accounts
-	this.accounts_have = server.db_proxy.GetTableManager().Get_T_Account_Table_Proxy().SelectAllPrimaryFieldMap()
+	log.Printf("Loading accounts from db ...\n")
+	accounts_have := server.db_proxy.GetTableManager().Get_T_Account_Table_Proxy().SelectAllPrimaryFieldMap()
+	log.Printf("Loaded accounts: %v\n", accounts_have)
+
+	if accounts_have == nil {
+		accounts_have = make(map[string]bool)
+	}
+	this.accounts_have = accounts_have
 	return nil
 }
 

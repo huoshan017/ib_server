@@ -56,12 +56,11 @@ func (this *Server) Init(config *Config) bool {
 		return false
 	}
 	log.Printf("Loaded accounts: %v\n", accounts)
-	account_mgr.Init()
-	for a, s := range accounts {
-		account_mgr.Add(&Account{
-			account: a,
-		})
-		log.Printf("		account: %v, account_struct: %v\n", a, *s)
+
+	err := account_mgr.Init()
+	if err != nil {
+		log.Printf("AccountMgr init err %v\n", err.Error())
+		return false
 	}
 
 	return true

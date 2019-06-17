@@ -31,7 +31,11 @@ func (this *AccountMgr) Init(account_table *account_db.T_Account_Table_Proxy) er
 	this.accounts_load = accounts
 	this.account_table = account_table
 	log.Printf("Loading accounts from db ...\n")
-	accounts_have := this.account_table.SelectAllPrimaryFieldMap()
+	var accounts_have map[string]bool
+	accounts_have, err = this.account_table.SelectAllPrimaryFieldMap()
+	if err != nil {
+		return err
+	}
 	log.Printf("Loaded accounts: %v\n", accounts_have)
 
 	if accounts_have == nil {
@@ -79,6 +83,7 @@ func (this *AccountMgr) IsLoad(acc string) bool {
 
 func (this *AccountMgr) Get(acc string, is_load bool) *account_db.T_Account {
 	var account *account_db.T_Account
+	var err error
 
 	this.locker.RLock()
 	if this.accounts_load.Contains(acc) {
@@ -94,8 +99,9 @@ func (this *AccountMgr) Get(acc string, is_load bool) *account_db.T_Account {
 	}
 
 	if is_load {
-		account = this.account_table.SelectByPrimaryField(acc)
-		if account == nil {
+		account, err = this.account_table.SelectByPrimaryField(acc)
+		if err != nil {
+			log.Printf("account table select by primary field %v err: %v", acc, err.Error())
 			return nil
 		}
 		this.locker.Lock()

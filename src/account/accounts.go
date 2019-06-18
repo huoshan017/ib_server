@@ -54,9 +54,8 @@ func (this *AccountMgr) Add(acc, pwd string) bool {
 	}
 
 	if !this.accounts_load.Contains(acc) {
-		account := account_db.Create_T_Account()
+		account := this.account_table.NewRow(acc)
 		account.Lock()
-		account.Set_account(acc)
 		account.Set_password(pwd)
 		account.Set_register_time(int32(time.Now().Unix()))
 		account.Unlock()

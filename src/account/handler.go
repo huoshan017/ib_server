@@ -39,7 +39,7 @@ func verify_handler(w http.ResponseWriter, r *http.Request) {
 	password := querys.Get("password")
 
 	var result VerifyResult
-	acc_item := account_mgr.Get(account, true)
+	acc_item := account_mgr.Get(account)
 	if acc_item != nil {
 		if acc_item.Get_password() != password {
 			result.ErrCode = ERR_PASSWORD_INCORRECT
@@ -60,6 +60,8 @@ func verify_handler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("verify handler Write err %v, ret %v\n", err.Error(), ret)
 		return
 	}
+
+	log.Printf("verified account %v\n", account)
 }
 
 func register_handler(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +81,9 @@ func register_handler(w http.ResponseWriter, r *http.Request) {
 	if account_mgr.Has(account) {
 		result.ErrCode = ERR_ALREADY_REGISTERED
 	} else {
-		account_mgr.Add(account, password)
+		account_record := account_mgr.New(account)
+		account_record.Set_password(password)
+		server.db_proxy.GetTableManager().GetT_AccountTableProxy().Insert(account_record)
 	}
 
 	data, err := json.Marshal(&result)
@@ -94,4 +98,6 @@ func register_handler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("register handler Write err %v, ret %v\n", err.Error(), ret)
 		return
 	}
+
+	log.Printf("registered account %v\n", account)
 }

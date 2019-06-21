@@ -49,11 +49,8 @@ func (this *Server) Init(config *Config) bool {
 	this.http_service.HandleFunc("/account_register", register_handler)
 	this.config = config
 
-	err := account_mgr.Init(this.db_proxy.GetTableManager().Get_T_Account_Table_Proxy())
-	if err != nil {
-		log.Printf("AccountMgr init err %v\n", err.Error())
-		return false
-	}
+	account_mgr.Init(select_all_accounts)
+	account_mgr.SetSelectRecordFunc(select_account)
 
 	return true
 }

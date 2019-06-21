@@ -9,7 +9,7 @@ import (
 
 type DBProxy struct {
 	db           mysql_proxy.DB
-	table_proxys account_db.TablesProxyManager
+	table_proxys *account_db.TablesProxyManager
 }
 
 func (this *DBProxy) Connect(proxy_addr string, db_host_id int32, db_host_alias, db_name string) bool {
@@ -18,7 +18,8 @@ func (this *DBProxy) Connect(proxy_addr string, db_host_id int32, db_host_alias,
 		log.Printf("db proxy connect err: %v\n", err.Error())
 		return false
 	}
-	this.table_proxys.Init(&this.db)
+	this.table_proxys = account_db.NewTablesProxyManager(&this.db)
+	log.Printf("db proxy connected: %v %v %v %v\n", proxy_addr, db_host_id, db_host_alias, db_name)
 	return true
 }
 
@@ -35,5 +36,9 @@ func (this *DBProxy) End() {
 }
 
 func (this *DBProxy) GetTableManager() *account_db.TablesProxyManager {
-	return &this.table_proxys
+	return this.table_proxys
+}
+
+func (this *DBProxy) GetAccountTable() *account_db.T_AccountTableProxy {
+	return this.table_proxys.GetT_AccountTableProxy()
 }

@@ -13,10 +13,7 @@ type Config struct {
 	Id                int32
 	Name              string
 	ListenAddr        string
-	DBProxyServerAddr string
-	DBHostId          int32
-	DBHostAlias       string
-	DBName            string
+	AccountServerAddr string
 }
 
 func (this *Config) Init(config_path string) bool {
@@ -34,7 +31,6 @@ func (this *Config) Init(config_path string) bool {
 }
 
 type Server struct {
-	db_proxy     DBProxy
 	http_service phttp.Service
 	config       *Config
 }
@@ -42,33 +38,12 @@ type Server struct {
 var server Server
 
 func (this *Server) Init(config *Config) bool {
-	if !this.db_proxy.Connect(config.DBProxyServerAddr, config.DBHostId, config.DBHostAlias, config.DBName) {
-		return false
-	}
-	this.http_service.HandleFunc("/account_verify", verify_handler)
-	this.http_service.HandleFunc("/account_register", register_handler)
+	this.http_service.HandleFunc("/login", login_handler)
 	this.config = config
-
-	log.Printf("Loading accounts from db ...\n")
-	accounts, o := this.db_proxy.GetTableManager().Get_T_Account_Table_Proxy().SelectAllRecordsMap()
-	if !o {
-		log.Printf("Select all records failed\n")
-		return false
-	}
-	log.Printf("Loaded accounts: %v\n", accounts)
-	account_mgr.Init()
-	for a, s := range accounts {
-		account_mgr.Add(&Account{
-			account: a,
-		})
-		log.Printf("		account: %v, account_struct: %v\n", a, *s)
-	}
-
 	return true
 }
 
 func (this *Server) Run() {
-	this.db_proxy.GoRun()
 	this.http_service.GoRun(this.config.ListenAddr)
 	for {
 		time.Sleep(time.Millisecond * 100)

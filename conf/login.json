@@ -1,0 +1,6 @@
+{
+	"Id": 2000,
+	"Name": "LoginServer",
+	"ListenAddr": "127.0.0.1:30000",
+	"AccountServerAddr": "127.0.0.1:20000",
+}

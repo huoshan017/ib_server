@@ -49,8 +49,7 @@ func (this *Server) Init(config *Config) bool {
 	this.http_service.HandleFunc("/account_register", register_handler)
 	this.config = config
 
-	account_mgr.Init(select_all_accounts)
-	account_mgr.SetSelectRecordFunc(select_account)
+	init_account_records()
 
 	return true
 }

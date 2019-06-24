@@ -19,6 +19,6 @@ func select_account(key string) (*account_db.T_Account, error) {
 }
 
 func init_account_records() {
-	account_mgr.Init(select_all_accounts)
-	account_mgr.SetSelectRecordFunc(select_account)
+	account_mgr.OnInitSelectRecords(select_all_accounts)
+	account_mgr.RegisterSelectRecordFunc(select_account)
 }

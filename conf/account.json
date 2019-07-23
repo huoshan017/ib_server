@@ -5,5 +5,8 @@
 	"DBProxyServerAddr": "127.0.0.1:10000",
 	"DBHostId": 1,
 	"DBHostAlias": "main",
-	"DBName":"account_db"
+	"DBName":"account_db",
+	"RedisClusterAddrs":[
+		"127.0.0.1:7000", "127.0.0.1:7001", "127.0.0.1:7002"
+	]
 }

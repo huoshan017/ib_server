@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/huoshan017/ib_server/src/account/account_db"
 )
 
@@ -10,15 +13,22 @@ var (
 
 var account_mgr *account_db.T_AccountRecordMgr = account_db.NewT_AccountRecordMgr(DEFAULT_ACCOUNT_NUM_LOAD)
 
-func select_all_accounts() (map[string]*account_db.T_Account, error) {
-	return server.db_proxy.GetAccountTable().SelectAllRecordsMap()
-}
+func init_account_records() bool {
+	primary_map, err := server.db_proxy.GetAccountTable().SelectAllPrimaryFieldMap()
+	if err != nil {
+		fmt.Fprintf(os.Stdout, "select all primary field map err: %v\n", err.Error())
+		return false
+	}
 
-func select_account(key string) (*account_db.T_Account, error) {
-	return server.db_proxy.GetAccountTable().SelectByPrimaryField(key)
-}
-
-func init_account_records() {
-	account_mgr.OnInitSelectRecords(select_all_accounts)
-	account_mgr.RegisterSelectRecordFunc(select_account)
+	if primary_map != nil {
+		for acc, _ := range primary_map {
+			res := server.redis_cluster.HSet("account", acc, 1)
+			if res.Err() != nil {
+				fmt.Fprintf(os.Stderr, "redis cluster HSET err: %v\n", res.Err().Error())
+				return false
+			}
+		}
+		fmt.Fprintf(os.Stdout, "account primary key loaded\n")
+	}
+	return true
 }

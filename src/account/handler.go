@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"reflect"
 	"runtime/debug"
+
+	"github.com/huoshan017/ib_server/src/account/account_db"
 )
 
 const (
@@ -81,9 +83,11 @@ func register_handler(w http.ResponseWriter, r *http.Request) {
 	if account_mgr.Has(account) {
 		result.ErrCode = ERR_ALREADY_REGISTERED
 	} else {
-		account_record := account_mgr.New(account)
-		account_record.Set_password(password)
-		server.db_proxy.GetTableManager().GetT_AccountTableProxy().Insert(account_record)
+		acc := &account_db.T_Account{}
+		acc.Set_account(account)
+		acc.Set_password(password)
+		account_mgr.Add(acc)
+		server.db_proxy.GetTableManager().GetT_AccountTableProxy().Insert(acc)
 	}
 
 	data, err := json.Marshal(&result)

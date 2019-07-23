@@ -2,10 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"time"
 
+	"github.com/go-redis/redis"
 	phttp "github.com/huoshan017/ponu/http"
 )
 
@@ -17,6 +20,7 @@ type Config struct {
 	DBHostId          int32
 	DBHostAlias       string
 	DBName            string
+	RedisClusterAddrs []string
 }
 
 func (this *Config) Init(config_path string) bool {
@@ -34,9 +38,10 @@ func (this *Config) Init(config_path string) bool {
 }
 
 type Server struct {
-	db_proxy     DBProxy
-	http_service phttp.Service
-	config       *Config
+	db_proxy      DBProxy
+	http_service  phttp.Service
+	config        *Config
+	redis_cluster *redis.ClusterClient
 }
 
 var server Server
@@ -50,6 +55,16 @@ func (this *Server) Init(config *Config) bool {
 	this.config = config
 
 	init_account_records()
+
+	this.redis_cluster = redis.NewClusterClient(&redis.ClusterOptions{
+		Addrs: config.RedisClusterAddrs,
+	})
+
+	if this.redis_cluster == nil {
+		return false
+	}
+
+	fmt.Fprintf(os.Stdout, "redis cluster created\n")
 
 	return true
 }
